@@ -24,7 +24,7 @@
 #define __View_h__
 
 #include <TGFrame.h>
-#include <TGX11.h>
+#include <TVirtualX.h>
 
 namespace HDTV {
 namespace Display {

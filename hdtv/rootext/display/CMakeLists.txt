@@ -37,7 +37,10 @@ set(HEADERS
     XMarker.hh
     YMarker.hh)
 
+if (UNIX AND NOT APPLE)
 find_package(X11 REQUIRED)
+endif()
+
 
 find_package(
   ROOT REQUIRED
@@ -66,6 +69,11 @@ add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
 add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
+
+if (UNIX AND NOT APPLE)
+# target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_X11)
+endif()
+
 set_target_properties(
   ${PROJECT_NAME}
   PROPERTIES
