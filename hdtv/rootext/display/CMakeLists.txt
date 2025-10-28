@@ -71,7 +71,7 @@ add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
 
 if (UNIX AND NOT APPLE)
-# target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_X11)
+target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_X11)
 endif()
 
 set_target_properties(
@@ -82,6 +82,8 @@ set_target_properties(
 )
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
                                                   ${CMAKE_CURRENT_SOURCE_DIR}/../calibration)
+
+if (UNIX AND NOT APPLE)
 target_link_libraries(
   ${PROJECT_NAME}
   ROOT::Core
@@ -89,6 +91,15 @@ target_link_libraries(
   ROOT::Graf
   ROOT::Gui
   X11)
+else()
+target_link_libraries(
+  ${PROJECT_NAME}
+  ROOT::Core
+  ROOT::Hist
+  ROOT::Graf
+  ROOT::Gui
+  )
+endif()
 
 install(
   TARGETS ${PROJECT_NAME}
