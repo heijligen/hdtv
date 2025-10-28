@@ -30,7 +30,6 @@
 #ifndef NO_SHM
 
 #include <ctype.h>
-#include <errno.h>
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -37,7 +37,6 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdio.h>
-#include <unistd.h>
 
 /* matrix file type names	*/
 #define MAT_UNKNOWN (0)

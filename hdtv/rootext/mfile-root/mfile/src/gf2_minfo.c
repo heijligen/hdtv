@@ -29,11 +29,7 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdlib.h>
 #include <string.h>
-#include <sys/file.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 #include "getputint.h"
 #include "gf2_getput.h"

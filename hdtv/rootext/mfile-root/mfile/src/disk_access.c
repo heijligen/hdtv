@@ -27,12 +27,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// #include <sys/file.h>
-#include <sys/stat.h>
 
 #include "debug.h"
 #include "disk_access.h"
@@ -84,7 +81,6 @@ int32_t disk_close(amp ap) {
 int32_t disk_tryaccess(amp ap, const char *name, const char *mode) {
 
   FILE *f;
-  struct stat stat_buf;
 
   // Always open in binary mode
   char *b = "b";
@@ -111,10 +107,10 @@ int32_t disk_tryaccess(amp ap, const char *name, const char *mode) {
   ap->close = disk_close;
   ap->flush = disk_flush;
 
-  if (fstat(fileno(f), &stat_buf) == 0) {
-    ap->size = stat_buf.st_size;
-  }
-
+  (void)fseek(f, 0, SEEK_END);
+  ap->size = ftell(f);
+  (void)fseek(f, 0, SEEK_SET);
+  
   return 0;
 }
 

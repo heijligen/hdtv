@@ -31,7 +31,6 @@
 #include "debug.h"
 #include "mfile.h"
 #include <stdlib.h>
-#include <unistd.h>
 
 static void checkconvbuffer(uint32_t size);
 

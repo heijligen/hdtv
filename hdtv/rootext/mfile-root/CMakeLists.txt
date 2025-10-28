@@ -94,6 +94,21 @@ test_big_endian(BIGENDIAN)
 if(NOT ${BIGENDIAN})
   target_compile_definitions(${PROJECT_NAME} PRIVATE -DLOWENDIAN)
 endif(NOT ${BIGENDIAN})
+# Check for snprintf
+include(CheckFunctionExists)
+check_function_exists(snprintf HAVE_SNPRINTF)
+if(${HAVE_SNPRINTF})
+  target_compile_definitions(${PROJECT_NAME} PRIVATE -DHAVE_SNPRINTF)
+endif(${HAVE_SNPRINTF})
+
+# Check for shared memory via sys/shm.h
+include(CheckIncludeFile)
+set(HAVE_SHM false)
+check_include_file("sys/shm.h" HAVE_SHM)
+if(NOT ${HAVE_SHM})
+  target_compile_definitions(${PROJECT_NAME} PRIVATE -DNO_SHM)
+endif(NOT ${HAVE_SHM})
+
 
 install(
   TARGETS ${PROJECT_NAME}
