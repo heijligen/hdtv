@@ -1,6 +1,20 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
-project(display LANGUAGES CXX)
+project(hdtv_rootext LANGUAGES C CXX)
+
+find_package(ROOT 6.20 CONFIG REQUIRED)
+
+if(UNIX AND NOT APPLE)
+find_package(X11 REQUIRED)
+endif()
+
+include(${ROOT_DIR}/RootMacros.cmake)
+
+set(CMAKE_CXX_FLAGS ${ROOT_CXX_FLAGS})
+
+# ^ move this to a toplevel CMakeLists.txt
+
+set(MODULE display)
 
 set(SOURCES
     DisplayBlock.cc
@@ -17,7 +31,9 @@ set(SOURCES
     View.cc
     Viewer.cc
     XMarker.cc
-    YMarker.cc)
+    YMarker.cc
+    ../calibration/Calibration.cc # This is a hack for windows
+)
 
 set(HEADERS
     DisplayBlock.hh
@@ -35,74 +51,32 @@ set(HEADERS
     Viewer.hh
     View.hh
     XMarker.hh
-    YMarker.hh)
-
-if (UNIX AND NOT APPLE)
-find_package(X11 REQUIRED)
-endif()
-
-
-find_package(
-  ROOT REQUIRED
-  COMPONENTS Core
-             Hist
-             Graf
-             Gui)
-message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
-if(${ROOT_VERSION_MINOR} GREATER_EQUAL 20)
-  include(${ROOT_DIR}/RootMacros.cmake)
-elseif(${ROOT_VERSION_MINOR} EQUAL 19 AND EXISTS ${ROOT_DIR}/RootMacros.cmake)
-  include(${ROOT_DIR}/RootMacros.cmake)
-else()
-  include(${ROOT_DIR}/modules/RootNewMacros.cmake)
-endif()
-
-root_generate_dictionary(
-  G__${PROJECT_NAME}
-  ${HEADERS}
-  LINKDEF
-  LinkDef.h
-  OPTIONS
-  -I${CMAKE_CURRENT_SOURCE_DIR}/../calibration)
-
-add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
-add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
-
-if (UNIX AND NOT APPLE)
-target_compile_definitions(${PROJECT_NAME} PRIVATE -DUSE_X11)
-endif()
-
-set_target_properties(
-  ${PROJECT_NAME}
-  PROPERTIES
-    RESOURCE
-    "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
+    YMarker.hh
 )
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-                                                  ${CMAKE_CURRENT_SOURCE_DIR}/../calibration)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../calibration)
+
+  
+root_generate_dictionary(G__${MODULE} ${HEADERS} MODULE ${MODULE} LINKDEF LinkDef.h)
+add_library(${MODULE} SHARED ${SOURCES} G__${MODULE}.cxx)
+add_library(hdtv::${MODULE} ALIAS ${MODULE})
 
 if (UNIX AND NOT APPLE)
-target_link_libraries(
-  ${PROJECT_NAME}
-  ROOT::Core
-  ROOT::Hist
-  ROOT::Graf
-  ROOT::Gui
-  X11)
-else()
-target_link_libraries(
-  ${PROJECT_NAME}
-  ROOT::Core
-  ROOT::Hist
-  ROOT::Graf
-  ROOT::Gui
-  )
+    target_compile_definitions(${MODULE} PRIVATE -DUSE_X11)
 endif()
 
-install(
-  TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RESOURCE DESTINATION lib)
+target_link_libraries(${MODULE} PUBLIC ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui X11)
+
+if(UNIX)
+    set_target_properties(${MODULE} PROPERTIES RESOURCE
+        "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
+    )
+elseif(WIN32)
+    set_target_properties(${MODULE} PROPERTIES RESOURCE
+        "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/${MODULE}_rdict.pcm"
+    )
+else()
+    message(FATAL_ERROR "Do not know how to handle non UNIX and non WIN32 systems")
+endif()
+
+install(TARGETS ${MODULE} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

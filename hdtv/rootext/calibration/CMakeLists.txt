@@ -1,47 +1,43 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
-project(calibration LANGUAGES CXX)
+project(hdtv_rootext LANGUAGES C CXX)
 
-set(SOURCES Calibration.cc)
+find_package(ROOT 6.20 CONFIG REQUIRED)
 
-set(HEADERS Calibration.hh)
+include(${ROOT_DIR}/RootMacros.cmake)
 
-find_package(ROOT REQUIRED COMPONENTS Core Hist)
-message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
-if(${ROOT_VERSION_MINOR} GREATER_EQUAL 20)
-  include(${ROOT_DIR}/RootMacros.cmake)
-elseif(${ROOT_VERSION_MINOR} EQUAL 19 AND EXISTS ${ROOT_DIR}/RootMacros.cmake)
-  include(${ROOT_DIR}/RootMacros.cmake)
+set(CMAKE_CXX_FLAGS ${ROOT_CXX_FLAGS})
+
+# ^ move this to a toplevel CMakeLists.txt
+
+set(MODULE calibration)
+
+set(HEADERS
+    Calibration.hh
+)
+
+set(SOURCES
+    Calibration.cc
+)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+root_generate_dictionary(G__${MODULE} ${HEADERS} MODULE ${MODULE} LINKDEF LinkDef.h)
+add_library(${MODULE} SHARED ${SOURCES} G__${MODULE}.cxx)
+add_library(hdtv::${MODULE} ALIAS ${MODULE})
+target_link_libraries(${MODULE} PUBLIC ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui)
+
+if(UNIX)
+    set_target_properties(${MODULE} PROPERTIES RESOURCE
+      "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
+    )
+elseif(WIN32)
+    set_target_properties(${MODULE} PROPERTIES RESOURCE
+      "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/${MODULE}_rdict.pcm"
+    )
 else()
-  include(${ROOT_DIR}/modules/RootNewMacros.cmake)
+    message(FATAL_ERROR "Do not know how to handle non UNIX and non WIN32 systems")
 endif()
 
-root_generate_dictionary(
-  G__${PROJECT_NAME}
-  ${HEADERS}
-  LINKDEF
-  LinkDef.h)
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
-add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
-set_target_properties(
-  ${PROJECT_NAME}
-  PROPERTIES
-    RESOURCE
-    "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
-)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(
-  ${PROJECT_NAME}
-  ROOT::Core
-  ROOT::Hist
-  ROOT::Graf
-  ROOT::Gui)
-
-install(
-  TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RESOURCE DESTINATION lib)
+install(TARGETS ${MODULE} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

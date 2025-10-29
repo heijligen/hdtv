@@ -1,8 +1,16 @@
 cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
-# add_subdirectory(mfile)
+project(hdtv_rootext LANGUAGES C CXX)
 
-project(mfile-root LANGUAGES C CXX)
+find_package(ROOT 6.20 CONFIG REQUIRED)
+
+include(${ROOT_DIR}/RootMacros.cmake)
+
+set(CMAKE_CXX_FLAGS ${ROOT_CXX_FLAGS})
+
+# ^ move this to a toplevel CMakeLists.txt
+
+set(MODULE mfile-root)
 
 set(SOURCES
     MatOp.cc
@@ -49,69 +57,42 @@ set(HEADERS
     matop/matop_conv.h
     matop/matop_project.h)
 
-find_package(ROOT REQUIRED COMPONENTS Core Hist)
-message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
-if(${ROOT_VERSION_MINOR} GREATER_EQUAL 20)
-  include(${ROOT_DIR}/RootMacros.cmake)
-elseif(${ROOT_VERSION_MINOR} EQUAL 19 AND EXISTS ${ROOT_DIR}/RootMacros.cmake)
-  include(${ROOT_DIR}/RootMacros.cmake)
-else()
-  include(${ROOT_DIR}/modules/RootNewMacros.cmake)
-endif()
-
-root_generate_dictionary(
-  G__${PROJECT_NAME}
-  ${HEADERS}
-  OPTIONS
-  -I${CMAKE_CURRENT_SOURCE_DIR}/mfile/include/
-  LINKDEF
-  LinkDef.h)
-
-add_library(${PROJECT_NAME} SHARED ${SOURCES} G__${PROJECT_NAME}.cxx)
-add_library(hdtv::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
-
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_14)
-set_target_properties(
-  ${PROJECT_NAME}
-  PROPERTIES
-    RESOURCE
-    "${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${PROJECT_NAME}_rdict.pcm"
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/mfile/include
 )
-target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-         ${CMAKE_CURRENT_SOURCE_DIR}/matop
-         ${CMAKE_CURRENT_SOURCE_DIR}/mfile/include
-         ${CMAKE_CURRENT_SOURCE_DIR}/mfile/src)
-target_link_libraries(${PROJECT_NAME} ROOT::Core ROOT::Hist)
 
-# For mfile
-target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
-target_compile_options(${PROJECT_NAME} PRIVATE -ftrapv -Wall)
+root_generate_dictionary(G__${MODULE} ${HEADERS} MODULE ${MODULE} LINKDEF LinkDef.h)
+add_library(${MODULE} SHARED ${SOURCES} G__${MODULE}.cxx)
+add_library(hdtv::${MODULE} ALIAS ${MODULE})
+target_link_libraries(${MODULE} PUBLIC ROOT::Core ROOT::Hist)
+
 # Check endian-ness
 include(TestBigEndian)
 test_big_endian(BIGENDIAN)
 if(NOT ${BIGENDIAN})
-  target_compile_definitions(${PROJECT_NAME} PRIVATE -DLOWENDIAN)
+  target_compile_definitions(${MODULE} PRIVATE -DLOWENDIAN)
 endif(NOT ${BIGENDIAN})
-# Check for snprintf
-include(CheckFunctionExists)
-check_function_exists(snprintf HAVE_SNPRINTF)
-if(${HAVE_SNPRINTF})
-  target_compile_definitions(${PROJECT_NAME} PRIVATE -DHAVE_SNPRINTF)
-endif(${HAVE_SNPRINTF})
 
 # Check for shared memory via sys/shm.h
 include(CheckIncludeFile)
 set(HAVE_SHM false)
 check_include_file("sys/shm.h" HAVE_SHM)
 if(NOT ${HAVE_SHM})
-  target_compile_definitions(${PROJECT_NAME} PRIVATE -DNO_SHM)
+  target_compile_definitions(${MODULE} PRIVATE -DNO_SHM)
 endif(NOT ${HAVE_SHM})
 
+if(UNIX)
+    set_target_properties(${MODULE} PROPERTIES RESOURCE
+      "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
+    )
+elseif(WIN32)
+    set_target_properties(${MODULE} PROPERTIES RESOURCE
+      "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/${MODULE}_rdict.pcm"
+    )
+else()
+    message(FATAL_ERROR "Do not know how to handle non UNIX and non WIN32 systems")
+endif()
 
-install(
-  TARGETS ${PROJECT_NAME}
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RESOURCE DESTINATION lib)
+
+install(TARGETS ${MODULE} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
