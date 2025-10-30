@@ -32,7 +32,6 @@ import subprocess
 import threading
 import traceback
 from enum import Enum, auto
-from pwd import getpwuid
 
 import prompt_toolkit
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
@@ -508,12 +507,30 @@ class CommandLine:
     def EnterShell(self, args=None):
         "Execute a subshell"
 
-        if "SHELL" in os.environ:
-            shell = os.environ["SHELL"]
+        if os.name == "nt":
+            import shutil
+            shell = shutil.which(os.environ["COMSPEC"])
+            if shell:
+                subprocess.call(shell)
+            shell = shutil.which("powershell.exe")
+            if shell:
+                subprocess.call(shell)
+            shell = shutil.which("pwsh.exe")
+            if shell:
+                subprocess.call(shell)
+            shell = shutil.which("cmd.exe")
+            if shell:
+                subprocess.call("shell")
+            else:
+                print("No shell found")
         else:
-            shell = getpwuid(os.getuid()).pw_shell
+            from pwd import getpwuid
+            if "SHELL" in os.environ:
+                shell = os.environ["SHELL"]
+            else:
+                shell = getpwuid(os.getuid()).pw_shell
 
-        subprocess.call(shell)
+            subprocess.call(shell)
 
     def Exit(self, args=None):
         self.fKeepRunning = False
