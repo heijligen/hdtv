@@ -12,9 +12,6 @@ endif()
 
 
 add_subdirectory(calibration)
-# add_subdirectory(display)
-# add_subdirectory(fit)
-# add_subdirectory(mfile-root)
-
-
-# target_link_libraries(Test ROOT::Physics)
+add_subdirectory(display)
+add_subdirectory(fit)
+add_subdirectory(mfile-root)

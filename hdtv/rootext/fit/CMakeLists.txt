@@ -46,17 +46,8 @@ add_library(${MODULE} SHARED ${SOURCES} G__${MODULE}.cxx)
 add_library(hdtv::${MODULE} ALIAS ${MODULE})
 target_link_libraries(${MODULE} PUBLIC ROOT::Core ROOT::Hist ROOT::MathMore)
 
-if(UNIX)
-    set_target_properties(${MODULE} PROPERTIES RESOURCE
-      "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
-    )
-elseif(WIN32)
-    set_target_properties(${MODULE} PROPERTIES RESOURCE
-      "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/${MODULE}_rdict.pcm"
-    )
-else()
-    message(FATAL_ERROR "Do not know how to handle non UNIX and non WIN32 systems")
-endif()
-
+set_target_properties(${MODULE} PROPERTIES RESOURCE
+  "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
+)
 
 install(TARGETS ${MODULE} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

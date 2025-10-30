@@ -402,6 +402,8 @@ Pixmap_t View2D::RenderTile(int xoff, int yoff) {
     }
   }
 
+  pixmap = gVirtualX->CreatePixmapFromData(img, cTileSize, cTileSize);
+
   if (fDarkMode) {
     gVirtualX->FillRectangle(pixmap, GetWhiteGC()(), 0, 0, cTileSize, cTileSize);
   } else {

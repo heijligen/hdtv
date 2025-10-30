@@ -26,18 +26,8 @@ root_generate_dictionary(G__${MODULE} ${HEADERS} MODULE ${MODULE} LINKDEF LinkDe
 add_library(${MODULE} SHARED ${SOURCES} G__${MODULE}.cxx)
 add_library(hdtv::${MODULE} ALIAS ${MODULE})
 target_link_libraries(${MODULE} PUBLIC ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui)
-
-if(UNIX)
-    set_target_properties(${MODULE} PROPERTIES RESOURCE
+set_target_properties(${MODULE} PROPERTIES RESOURCE
       "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
     )
-elseif(WIN32)
-    set_target_properties(${MODULE} PROPERTIES RESOURCE
-      "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/${MODULE}_rdict.pcm"
-    )
-else()
-    message(FATAL_ERROR "Do not know how to handle non UNIX and non WIN32 systems")
-endif()
-
 
 install(TARGETS ${MODULE} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

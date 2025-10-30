@@ -82,17 +82,8 @@ if(NOT ${HAVE_SHM})
   target_compile_definitions(${MODULE} PRIVATE -DNO_SHM)
 endif(NOT ${HAVE_SHM})
 
-if(UNIX)
-    set_target_properties(${MODULE} PROPERTIES RESOURCE
-      "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
-    )
-elseif(WIN32)
-    set_target_properties(${MODULE} PROPERTIES RESOURCE
-      "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/${MODULE}_rdict.pcm"
-    )
-else()
-    message(FATAL_ERROR "Do not know how to handle non UNIX and non WIN32 systems")
-endif()
-
+set_target_properties(${MODULE} PROPERTIES RESOURCE
+    "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
+)
 
 install(TARGETS ${MODULE} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

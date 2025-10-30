@@ -63,20 +63,13 @@ add_library(hdtv::${MODULE} ALIAS ${MODULE})
 
 if (UNIX AND NOT APPLE)
     target_compile_definitions(${MODULE} PRIVATE -DUSE_X11)
-endif()
-
-target_link_libraries(${MODULE} PUBLIC ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui X11)
-
-if(UNIX)
-    set_target_properties(${MODULE} PROPERTIES RESOURCE
-        "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
-    )
-elseif(WIN32)
-    set_target_properties(${MODULE} PROPERTIES RESOURCE
-        "${CMAKE_CURRENT_BINARY_DIR}/${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/${MODULE}_rdict.pcm"
-    )
+    target_link_libraries(${MODULE} PUBLIC ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui X11)
 else()
-    message(FATAL_ERROR "Do not know how to handle non UNIX and non WIN32 systems")
+    target_link_libraries(${MODULE} PUBLIC ROOT::Core ROOT::Hist ROOT::Graf ROOT::Gui)
 endif()
+
+set_target_properties(${MODULE} PROPERTIES RESOURCE
+    "${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}.rootmap;${CMAKE_CURRENT_BINARY_DIR}/lib${MODULE}_rdict.pcm"
+)
 
 install(TARGETS ${MODULE} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
