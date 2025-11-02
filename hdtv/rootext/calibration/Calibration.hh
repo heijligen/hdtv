@@ -25,6 +25,8 @@
 
 #include <vector>
 
+#include <Rtypes.h>
+
 class TAxis;
 class TArrayD;
 
@@ -43,7 +45,7 @@ namespace HDTV {
  *  This then corresponds to an energy E = cal0. However, this needs not be
  *  true for spectra read e.g. from ROOT files.
  */
-class Calibration {
+class R__DLLEXPORT Calibration {
 public:
   Calibration() = default;
 
@@ -85,6 +87,8 @@ private:
   std::vector<double> fCal;
   std::vector<double> fCalDeriv;
   void UpdateDerivative();
+
+  ClassDef(Calibration, 1)
 };
 
 } // end namespace HDTV
