@@ -2,9 +2,7 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project(calibration LANGUAGES CXX)
 
-set(SOURCES Calibration.cc)
-
-set(HEADERS Calibration.hh)
+set(SOURCES Calibration.hpp)
 
 find_package(ROOT REQUIRED COMPONENTS Core Hist)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
@@ -18,7 +16,7 @@ endif()
 
 root_generate_dictionary(
   G__${PROJECT_NAME}
-  ${HEADERS}
+  ${SOURCES}
   LINKDEF
   LinkDef.h)
 
