@@ -11,7 +11,9 @@
 #include <cstdint>
 #include <memory>
 
+#ifndef __CLING__
 #include <mfile.h>
+#endif
 
 class MatOp {
 public:

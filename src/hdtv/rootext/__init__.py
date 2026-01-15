@@ -1,7 +1,7 @@
 # Do not import ROOT here!
 import os
 
-modules = ["mfile-root", "fit", "display"]
+modules = ["fit", "display"]
 
 libfmt = "lib%s.so"
 
