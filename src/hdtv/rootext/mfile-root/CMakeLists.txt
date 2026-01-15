@@ -5,9 +5,9 @@ cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project(mfile-root LANGUAGES C CXX)
 
 set(SOURCES
-    MatOp.cc
-    MFileHist.cc
-    VMatrix.cc
+    MatOp.hpp
+    MFileHist.hpp
+    VMatrix.hpp
     mfile/src/callindir.c
     mfile/src/converters.c
     mfile/src/disk_access.c
@@ -35,7 +35,7 @@ set(SOURCES
     mfile/src/txt_getput.c
     mfile/src/txt_minfo.c)
 
-set(HEADERS MatOp.hh MFileHist.hh VMatrix.hh)
+set(HEADERS MatOp.hpp MFileHist.hpp VMatrix.hpp)
 
 find_package(ROOT REQUIRED COMPONENTS Core Hist)
 message(STATUS "ROOT Version ${ROOT_VERSION} found in ${ROOT_root_CMD}")
