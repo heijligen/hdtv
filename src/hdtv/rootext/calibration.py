@@ -1,3 +1,8 @@
-import hdtv.rootext.dlmgr
+import os
 
-hdtv.rootext.dlmgr.LoadLibrary("calibration")
+import ROOT
+
+hpp = os.path.join(os.path.dirname(__file__), "calibration", "Calibration.hpp")
+
+ROOT.gSystem.SetBuildDir("~/.cache/hdtv/experimental", True)
+ROOT.gInterpreter.ProcessLine(f".L {hpp}+")
