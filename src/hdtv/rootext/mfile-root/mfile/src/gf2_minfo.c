@@ -91,8 +91,11 @@ void gf2_init(MFILE *mat) {
     mat->specinfo.i = elemsize;
     mat->version = GF2_STD_VERSION;
 
-    mat->mgetf4f = getfLocal;
-    mat->mputf4f = putfLocal;
+    // TODO:
+    // Casting function pointers with different argument types is theoretically undefined behavior (C11 6.3.2.3p1/p8).
+    // In this case, only pointer arguments are casted. Current compilers handle this just fine.
+    mat->mgetf4f = (mgetf4f *)getfLocal;
+    mat->mputf4f = (mputf4f *)putfLocal;
     mat->muninitf = gf2_uninit;
   }
 }
