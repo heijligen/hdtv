@@ -19,4 +19,5 @@ RUN pipx install /hdtv-src && \
     rm -rf /hdtv-src
 
 WORKDIR /work
-CMD hdtv
+
+ENTRYPOINT ["hdtv"]
