@@ -78,6 +78,11 @@ On Linux and MacOS, no further installation is required and in the directory wit
 docker run -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix -v ${PWD}:/work -it hdtv
 ```
 
+CLI arguments can be passed directly e.g.
+```sh
+docker run ... -it hdtv --help
+```
+
 If your X server requires authorization, pass the .Xauthority file to the container.
 ```sh
 
